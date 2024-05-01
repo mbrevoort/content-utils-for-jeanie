@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Extractor</title>
+<!-- Load Tailwind CSS from CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-5">
+<div class="max-w-xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-gray-700">HTML Link Extractor</h1>
+    <div class="mb-4">
+        <label for="inputHtml" class="block text-gray-600 font-medium">Paste HTML Here:</label>
+        <textarea id="inputHtml" rows="10" class="w-full p-2 text-sm border border-gray-300 rounded" oninput="extractLinks()"></textarea>
+    </div>
+    <div>
+        <label for="outputLinks" class="block text-gray-600 font-medium">Extracted Links:</label>
+        <textarea id="outputLinks" rows="10" class="w-full p-2 text-sm border border-gray-300 rounded" readonly></textarea>
+    </div>
+</div>
+
+<script>
+function extractLinks() {
+    const inputHtml = document.getElementById('inputHtml').value;
+    const outputArea = document.getElementById('outputLinks');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(inputHtml, "text/html");
+
+    let resultHtml = '';
+
+    const links = doc.querySelectorAll('a[href]');
+    links.forEach(link => {
+        link.querySelectorAll('.screenreader-only').forEach(span => {
+            span.parentNode.removeChild(span);
+        });
+
+        const href = link.getAttribute('href');
+        const linkText = link.textContent.trim();
+
+        if (linkText && href !== "#" && href.trim() !== "") {
+            const safeHref = href.startsWith('#') ? href : link.href;
+            resultHtml += `<p><a href="${safeHref}" target="_blank">${linkText}</a></p>\n`;
+        }
+    });
+
+    outputArea.value = resultHtml;
+}
+</script>
+</body>
+</html>
+
